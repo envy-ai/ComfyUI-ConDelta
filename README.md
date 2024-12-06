@@ -1,4 +1,4 @@
-==ConDeltas (Conditioning Deltas) for ComfyUI==
+#ConDeltas (Conditioning Deltas) for ComfyUI
 
 Conditioning deltas are conditioning vectors that are obtained by subtracting one prompt conditioning from another. The result of this is a latent vector between the two prompts that can be added to another prompt at am arbitrary strength, with an end result that's similar to that of a LoRA or an embedding.
 
@@ -15,6 +15,6 @@ Here's an example image showing this working in Flux, with a jungle ConDelta fro
 
 See the sample_workflows subdirectory for usage examples.
 
-==ELI5==
+##ELI5
 
 Just insert the Apply ConDelta node into your Comfy workflow between Clip Text Encode and your KSampler like this: ![Screenshot 2024-12-06 at 18-02-26 Unsaved Workflow (4) - ComfyUI](https://github.com/user-attachments/assets/1bb61c02-1480-4b41-a0c6-5e7fefcd6d87)
