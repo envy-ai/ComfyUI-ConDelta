@@ -1,5 +1,7 @@
 # ConDeltas (Conditioning Deltas) for ComfyUI
 
+**See bottom section for ELI5.**
+
 Conditioning deltas are conditioning vectors that are obtained by subtracting one prompt conditioning from another. The result of this is a latent vector between the two prompts that can be added to another prompt at am arbitrary strength, with an end result that's similar to that of a LoRA or an embedding.
 
 In layman's terms, a ConDelta id made by subtracting one prompt vector from another after they've been processed by CLIP (or T5, or whatever).  For instance, if we subtract these prompts:
