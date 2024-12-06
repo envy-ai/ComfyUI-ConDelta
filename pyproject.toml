@@ -1,0 +1,14 @@
+[project]
+name = "comfyui-condelta"
+description = "This extension extends ComfyUI's capabilities with respect to manipulating conditionings."
+version = "0.0.0"
+license = "MIT"
+
+[project.urls]
+Repository = "https://github.com/envy-ai"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "envy-ai"
+DisplayName = "ComfyUI-ConDelta"
+Icon = ""
