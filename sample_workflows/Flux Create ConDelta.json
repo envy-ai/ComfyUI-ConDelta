@@ -1,6 +1,6 @@
 {
-  "last_node_id": 200,
-  "last_link_id": 397,
+  "last_node_id": 203,
+  "last_link_id": 405,
   "nodes": [
     {
       "id": 157,
@@ -24,7 +24,8 @@
           "links": [
             373,
             378,
-            386
+            386,
+            398
           ],
           "slot_index": 0
         },
@@ -103,14 +104,14 @@
       "type": "VAEDecode",
       "pos": {
         "0": 1540,
-        "1": -740
+        "1": -1350
       },
       "size": {
         "0": 140,
         "1": 50
       },
       "flags": {},
-      "order": 21,
+      "order": 24,
       "mode": 0,
       "inputs": [
         {
@@ -152,14 +153,14 @@
       "type": "PreviewImage",
       "pos": {
         "0": 1730,
-        "1": -740
+        "1": -1350
       },
       "size": {
         "0": 210,
         "1": 250
       },
       "flags": {},
-      "order": 23,
+      "order": 26,
       "mode": 0,
       "inputs": [
         {
@@ -193,7 +194,7 @@
         "1": 50
       },
       "flags": {},
-      "order": 15,
+      "order": 16,
       "mode": 0,
       "inputs": [
         {
@@ -241,7 +242,7 @@
         "1": 250
       },
       "flags": {},
-      "order": 19,
+      "order": 21,
       "mode": 0,
       "inputs": [
         {
@@ -357,7 +358,8 @@
           "links": [
             254,
             380,
-            388
+            388,
+            400
           ],
           "slot_index": 0,
           "shape": 3
@@ -379,149 +381,18 @@
       "bgcolor": "#533"
     },
     {
-      "id": 6,
-      "type": "CLIPTextEncode",
-      "pos": {
-        "0": -560,
-        "1": 730
-      },
-      "size": {
-        "0": 360,
-        "1": 280
-      },
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": 358
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            365,
-            385
-          ],
-          "slot_index": 0
-        }
-      ],
-      "title": "ConDelta Prompt B",
-      "properties": {
-        "Node name for S&R": "CLIPTextEncode",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        "A city"
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
-      "id": 183,
-      "type": "CLIPTextEncode",
-      "pos": {
-        "0": -560,
-        "1": 400
-      },
-      "size": {
-        "0": 360,
-        "1": 290
-      },
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": 359
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            364,
-            393
-          ],
-          "slot_index": 0
-        }
-      ],
-      "title": "ConDelta Prompt A",
-      "properties": {
-        "Node name for S&R": "CLIPTextEncode",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        "An art deco city"
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
-      "id": 199,
-      "type": "SaveConditioningDelta",
-      "pos": {
-        "0": -530,
-        "1": 1190
-      },
-      "size": {
-        "0": 320,
-        "1": 80
-      },
-      "flags": {},
-      "order": 17,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "conditioning_delta",
-          "type": "CONDITIONING",
-          "link": 397
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "SaveConditioningDelta",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        "ArtDecoDelta",
-        true
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
       "id": 190,
       "type": "SaveImage",
       "pos": {
         "0": 2040,
-        "1": -750
+        "1": -1360
       },
       "size": {
         "0": 320,
         "1": 270
       },
       "flags": {},
-      "order": 22,
+      "order": 25,
       "mode": 0,
       "inputs": [
         {
@@ -550,14 +421,14 @@
       "type": "KSampler",
       "pos": {
         "0": 1160,
-        "1": -740
+        "1": -1350
       },
       "size": [
         320,
         470
       ],
       "flags": {},
-      "order": 20,
+      "order": 23,
       "mode": 0,
       "inputs": [
         {
@@ -623,7 +494,7 @@
         "1": 50
       },
       "flags": {},
-      "order": 14,
+      "order": 15,
       "mode": 0,
       "inputs": [
         {
@@ -671,7 +542,7 @@
         "1": 250
       },
       "flags": {},
-      "order": 18,
+      "order": 20,
       "mode": 0,
       "inputs": [
         {
@@ -727,56 +598,6 @@
       "bgcolor": "#533"
     },
     {
-      "id": 187,
-      "type": "ConditioningAddConDelta",
-      "pos": {
-        "0": 430,
-        "1": 250
-      },
-      "size": {
-        "0": 390,
-        "1": 80
-      },
-      "flags": {},
-      "order": 16,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "conditioning_base",
-          "type": "CONDITIONING",
-          "link": 367
-        },
-        {
-          "name": "conditioning_delta",
-          "type": "CONDITIONING",
-          "link": 395
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            371
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ConditioningAddConDelta",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        1
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
       "id": 186,
       "type": "ConditioningSubtract",
       "pos": {
@@ -825,52 +646,6 @@
       "bgcolor": "#533"
     },
     {
-      "id": 185,
-      "type": "CLIPTextEncode",
-      "pos": {
-        "0": -540,
-        "1": -220
-      },
-      "size": {
-        "0": 360,
-        "1": 300
-      },
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": 361
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            367
-          ],
-          "slot_index": 0
-        }
-      ],
-      "title": "Sample Image Prompt",
-      "properties": {
-        "Node name for S&R": "CLIPTextEncode",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        "The interior of a modern corporate office"
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
       "id": 5,
       "type": "EmptyLatentImage",
       "pos": {
@@ -892,7 +667,8 @@
           "links": [
             157,
             381,
-            389
+            389,
+            401
           ],
           "slot_index": 0
         }
@@ -920,10 +696,10 @@
         "0": -500,
         "1": -420
       },
-      "size": [
-        300,
-        90
-      ],
+      "size": {
+        "0": 300,
+        "1": 90
+      },
       "flags": {},
       "order": 4,
       "mode": 0,
@@ -935,7 +711,8 @@
           "links": [
             20,
             383,
-            391
+            391,
+            403
           ],
           "slot_index": 0,
           "shape": 3
@@ -1023,18 +800,125 @@
       "bgcolor": "#533"
     },
     {
+      "id": 200,
+      "type": "Note",
+      "pos": {
+        "0": -560,
+        "1": 210
+      },
+      "size": {
+        "0": 360,
+        "1": 150
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "These two prompts create the ConDelta as the vector:\n\nPrompt A - Prompt B\n\nHence, if Prompt A is \"An Art Deco city\" and Prompt B is \"A city\", then the ConDelta will be a vector that makes things art deco style.\n\nChange the conditioning scale to make the ConDelta stronger or weaker until you get a good result. 1 is usually a good starting point."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 183,
+      "type": "CLIPTextEncode",
+      "pos": {
+        "0": -560,
+        "1": 400
+      },
+      "size": {
+        "0": 360,
+        "1": 290
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 359
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            364,
+            393
+          ],
+          "slot_index": 0
+        }
+      ],
+      "title": "ConDelta Prompt A",
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        "A grassy field"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 199,
+      "type": "SaveConditioningDelta",
+      "pos": {
+        "0": -530,
+        "1": 1190
+      },
+      "size": {
+        "0": 320,
+        "1": 80
+      },
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning_delta",
+          "type": "CONDITIONING",
+          "link": 397
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveConditioningDelta",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        "Flux_GrassyFieldDelta",
+        true
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
       "id": 198,
       "type": "ConditioningScale",
       "pos": {
         "0": -580,
         "1": 1070
       },
-      "size": [
-        410,
-        60
-      ],
+      "size": {
+        "0": 410,
+        "1": 60
+      },
       "flags": {},
-      "order": 13,
+      "order": 14,
       "mode": 0,
       "inputs": [
         {
@@ -1063,33 +947,300 @@
         }
       },
       "widgets_values": [
-        2.25
+        1
       ],
       "color": "#322",
       "bgcolor": "#533"
     },
     {
-      "id": 200,
-      "type": "Note",
+      "id": 201,
+      "type": "KSampler",
       "pos": {
-        "0": -560,
-        "1": 210
+        "0": 1159.0501708984375,
+        "1": -836.4932861328125
       },
       "size": [
-        360,
-        150
+        320,
+        470
       ],
       "flags": {},
-      "order": 5,
+      "order": 13,
       "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "properties": {},
-      "widgets_values": [
-        "These two prompts create the ConDelta as the vector:\n\nPrompt A - Prompt B\n\nHence, if Prompt A is \"An Art Deco city\" and Prompt B is \"A city\", then the ConDelta will be a vector that makes things art deco style.\n\nChange the conditioning scale to make the ConDelta stronger or weaker until you get a good result. 1 is usually a good starting point."
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 398
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 405
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 400
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 401
+        }
       ],
-      "color": "#432",
-      "bgcolor": "#653"
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            402
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        0,
+        "fixed",
+        8,
+        1,
+        "euler",
+        "beta",
+        1
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 202,
+      "type": "VAEDecode",
+      "pos": {
+        "0": 1539.0501708984375,
+        "1": -836.4932861328125
+      },
+      "size": {
+        "0": 140,
+        "1": 50
+      },
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 402
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 403
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            404
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 203,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 1729.0501708984375,
+        "1": -836.4932861328125
+      },
+      "size": {
+        "0": 210,
+        "1": 250
+      },
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 404
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 185,
+      "type": "CLIPTextEncode",
+      "pos": {
+        "0": -540,
+        "1": -220
+      },
+      "size": {
+        "0": 360,
+        "1": 300
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 361
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            367,
+            405
+          ],
+          "slot_index": 0
+        }
+      ],
+      "title": "Sample Image Prompt",
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        "A woman lying in a field"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 6,
+      "type": "CLIPTextEncode",
+      "pos": {
+        "0": -560,
+        "1": 730
+      },
+      "size": {
+        "0": 360,
+        "1": 280
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 358
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            365,
+            385
+          ],
+          "slot_index": 0
+        }
+      ],
+      "title": "ConDelta Prompt B",
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        "A barren wasteland"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 187,
+      "type": "ConditioningAddConDelta",
+      "pos": {
+        "0": 430,
+        "1": 250
+      },
+      "size": {
+        "0": 390,
+        "1": 80
+      },
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning_base",
+          "type": "CONDITIONING",
+          "link": 367
+        },
+        {
+          "name": "conditioning_delta",
+          "type": "CONDITIONING",
+          "link": 395
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            371
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ConditioningAddConDelta",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        1
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
     }
   ],
   "links": [
@@ -1348,6 +1499,62 @@
       199,
       0,
       "CONDITIONING"
+    ],
+    [
+      398,
+      157,
+      0,
+      201,
+      0,
+      "MODEL"
+    ],
+    [
+      400,
+      136,
+      0,
+      201,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      401,
+      5,
+      0,
+      201,
+      3,
+      "LATENT"
+    ],
+    [
+      402,
+      201,
+      0,
+      202,
+      0,
+      "LATENT"
+    ],
+    [
+      403,
+      16,
+      0,
+      202,
+      1,
+      "VAE"
+    ],
+    [
+      404,
+      202,
+      0,
+      203,
+      0,
+      "IMAGE"
+    ],
+    [
+      405,
+      185,
+      0,
+      201,
+      1,
+      "CONDITIONING"
     ]
   ],
   "groups": [
@@ -1355,9 +1562,9 @@
       "title": "Sample Image",
       "bounding": [
         1150,
-        -824,
-        1220,
-        564
+        -1440,
+        1250,
+        1210
       ],
       "color": "#8AA",
       "font_size": 24,
@@ -1391,10 +1598,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.3257456020548739,
+      "scale": 0.5352104480354234,
       "offset": [
-        1763.2519264832972,
-        1498.9329216658875
+        1462.348607814638,
+        1485.3968929381392
       ]
     },
     "groupNodes": {}

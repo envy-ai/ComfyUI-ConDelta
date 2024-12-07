@@ -1,6 +1,6 @@
 {
-  "last_node_id": 194,
-  "last_link_id": 383,
+  "last_node_id": 196,
+  "last_link_id": 388,
   "nodes": [
     {
       "id": 188,
@@ -58,7 +58,7 @@
         {
           "name": "positive",
           "type": "CONDITIONING",
-          "link": 380
+          "link": 387
         },
         {
           "name": "negative",
@@ -281,52 +281,16 @@
       "bgcolor": "#533"
     },
     {
-      "id": 194,
-      "type": "SaveImage",
-      "pos": {
-        "0": 2059.692626953125,
-        "1": -72.49419403076172
-      },
-      "size": [
-        320,
-        270
-      ],
-      "flags": {},
-      "order": 11,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 381
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "SaveImage",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        "ComfyUI"
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
       "id": 185,
       "type": "CLIPTextEncode",
       "pos": {
         "0": -560,
         "1": -240
       },
-      "size": [
-        370,
-        200
-      ],
+      "size": {
+        "0": 370,
+        "1": 200
+      },
       "flags": {},
       "order": 5,
       "mode": 0,
@@ -342,7 +306,7 @@
           "name": "CONDITIONING",
           "type": "CONDITIONING",
           "links": [
-            377
+            385
           ],
           "slot_index": 0
         }
@@ -368,10 +332,10 @@
         "0": -560,
         "1": 10
       },
-      "size": [
-        360,
-        140
-      ],
+      "size": {
+        "0": 360,
+        "1": 140
+      },
       "flags": {},
       "order": 6,
       "mode": 0,
@@ -404,98 +368,6 @@
       },
       "widgets_values": [
         ""
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
-      "id": 192,
-      "type": "ApplyConditioningDelta",
-      "pos": {
-        "0": 120,
-        "1": -140
-      },
-      "size": {
-        "0": 320,
-        "1": 80
-      },
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 377
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            379
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ApplyConditioningDelta",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        "LushJungleDelta.safetensors",
-        1
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
-      "id": 193,
-      "type": "ApplyConditioningDelta",
-      "pos": {
-        "0": 480,
-        "1": -140
-      },
-      "size": {
-        "0": 320,
-        "1": 80
-      },
-      "flags": {},
-      "order": 8,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 379
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            380
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ApplyConditioningDelta",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        "MoonBaseDelta.safetensors",
-        1
       ],
       "color": "#322",
       "bgcolor": "#533"
@@ -539,6 +411,133 @@
         "t5\\google_t5-v1_1-xxl_encoderonly-fp8_e4m3fn.safetensors",
         "colossusProjectFlux_clipLV21.safetensors",
         "flux"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 196,
+      "type": "ApplyConDelta",
+      "pos": {
+        "0": 530,
+        "1": -130
+      },
+      "size": {
+        "0": 320,
+        "1": 80
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 388
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            387
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ApplyConDelta",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        "Flux_EgyptianStyleDelta.safetensors",
+        1
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 194,
+      "type": "SaveImage",
+      "pos": {
+        "0": 1970,
+        "1": -80
+      },
+      "size": {
+        "0": 320,
+        "1": 270
+      },
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 381
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        "ComfyUI"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 195,
+      "type": "ApplyConDelta",
+      "pos": {
+        "0": 120,
+        "1": -130
+      },
+      "size": {
+        "0": 320,
+        "1": 80
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 385
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            388
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ApplyConDelta",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        "LushJungleDelta.safetensors",
+        1.5
       ],
       "color": "#322",
       "bgcolor": "#533"
@@ -586,30 +585,6 @@
       "CLIP"
     ],
     [
-      377,
-      185,
-      0,
-      192,
-      0,
-      "CONDITIONING"
-    ],
-    [
-      379,
-      192,
-      0,
-      193,
-      0,
-      "CONDITIONING"
-    ],
-    [
-      380,
-      193,
-      0,
-      3,
-      1,
-      "CONDITIONING"
-    ],
-    [
       381,
       8,
       0,
@@ -632,16 +607,40 @@
       136,
       0,
       "CLIP"
+    ],
+    [
+      385,
+      185,
+      0,
+      195,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      387,
+      196,
+      0,
+      3,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      388,
+      195,
+      0,
+      196,
+      0,
+      "CONDITIONING"
     ]
   ],
   "groups": [],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.7452270278445234,
+      "scale": 0.5352104480354234,
       "offset": [
-        955.7227029621782,
-        928.7920123975603
+        1061.5603998197641,
+        1004.9775648471089
       ]
     },
     "groupNodes": {}

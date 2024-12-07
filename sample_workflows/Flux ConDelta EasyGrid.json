@@ -1,40 +1,7 @@
 {
-  "last_node_id": 200,
-  "last_link_id": 394,
+  "last_node_id": 202,
+  "last_link_id": 399,
   "nodes": [
-    {
-      "id": 188,
-      "type": "GlobalSeed //Inspire",
-      "pos": {
-        "0": 520,
-        "1": -410
-      },
-      "size": {
-        "0": 320,
-        "1": 130
-      },
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "GlobalSeed //Inspire",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        0,
-        true,
-        "fixed",
-        0
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
     {
       "id": 16,
       "type": "VAELoader",
@@ -47,7 +14,7 @@
         "1": 270
       },
       "flags": {},
-      "order": 1,
+      "order": 0,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -88,7 +55,7 @@
         "1": 110
       },
       "flags": {},
-      "order": 2,
+      "order": 1,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -129,7 +96,7 @@
         "1": 100
       },
       "flags": {},
-      "order": 3,
+      "order": 2,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -192,7 +159,7 @@
           "name": "CONDITIONING",
           "type": "CONDITIONING",
           "links": [
-            377
+            397
           ],
           "slot_index": 0
         }
@@ -270,7 +237,7 @@
         "1": 110
       },
       "flags": {},
-      "order": 4,
+      "order": 3,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -302,260 +269,16 @@
       "bgcolor": "#533"
     },
     {
-      "id": 192,
-      "type": "ApplyConditioningDelta",
-      "pos": {
-        "0": 120,
-        "1": -140
-      },
-      "size": {
-        "0": 320,
-        "1": 80
-      },
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 377
-        },
-        {
-          "name": "strength",
-          "type": "FLOAT",
-          "link": 386,
-          "widget": {
-            "name": "strength"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            379
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ApplyConditioningDelta",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        "LushJungleDelta.safetensors",
-        2
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
-      "id": 193,
-      "type": "ApplyConditioningDelta",
-      "pos": {
-        "0": 480,
-        "1": -140
-      },
-      "size": {
-        "0": 320,
-        "1": 80
-      },
-      "flags": {},
-      "order": 11,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "link": 379
-        },
-        {
-          "name": "strength",
-          "type": "FLOAT",
-          "link": 385,
-          "widget": {
-            "name": "strength"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            380
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ApplyConditioningDelta",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        "MoonBaseDelta.safetensors",
-        1
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
-      "id": 196,
-      "type": "GridFloats",
-      "pos": {
-        "0": 130,
-        "1": 290
-      },
-      "size": [
-        320,
-        270
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "index",
-          "type": "INT",
-          "link": 389,
-          "widget": {
-            "name": "index"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "current value",
-          "type": "FLOAT",
-          "links": [
-            386
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "list",
-          "type": "FLOAT_LIST",
-          "links": null
-        },
-        {
-          "name": "list text",
-          "type": "STRING_LIST",
-          "links": [
-            387
-          ],
-          "slot_index": 2
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "GridFloats",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        1,
-        3,
-        0,
-        0.25,
-        0.5,
-        0.75,
-        1,
-        1.25
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
-      "id": 198,
-      "type": "GridFloats",
-      "pos": {
-        "0": 520,
-        "1": 290
-      },
-      "size": [
-        320,
-        270
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "index",
-          "type": "INT",
-          "link": 390,
-          "widget": {
-            "name": "index"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "current value",
-          "type": "FLOAT",
-          "links": [
-            385
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "list",
-          "type": "FLOAT_LIST",
-          "links": null
-        },
-        {
-          "name": "list text",
-          "type": "STRING_LIST",
-          "links": [
-            388
-          ],
-          "slot_index": 2
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "GridFloats",
-        "ttNbgOverride": {
-          "color": "#322",
-          "bgcolor": "#533",
-          "groupcolor": "#A88"
-        }
-      },
-      "widgets_values": [
-        1,
-        3,
-        0,
-        0.25,
-        0.5,
-        0.75,
-        1,
-        1.25
-      ],
-      "color": "#322",
-      "bgcolor": "#533"
-    },
-    {
       "id": 200,
       "type": "ImageResizeKJ",
       "pos": {
         "0": 1640,
         "1": -50
       },
-      "size": [
-        320,
-        270
-      ],
+      "size": {
+        "0": 320,
+        "1": 270
+      },
       "flags": {},
       "order": 14,
       "mode": 0,
@@ -638,10 +361,10 @@
         "0": 2000,
         "1": -80
       },
-      "size": [
-        210,
-        390
-      ],
+      "size": {
+        "0": 210,
+        "1": 390
+      },
       "flags": {},
       "order": 15,
       "mode": 0,
@@ -716,7 +439,7 @@
         "1": 210
       },
       "flags": {},
-      "order": 5,
+      "order": 4,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -778,10 +501,10 @@
         "0": 970,
         "1": -80
       },
-      "size": [
-        320,
-        470
-      ],
+      "size": {
+        "0": 320,
+        "1": 470
+      },
       "flags": {},
       "order": 12,
       "mode": 0,
@@ -794,7 +517,7 @@
         {
           "name": "positive",
           "type": "CONDITIONING",
-          "link": 380
+          "link": 399
         },
         {
           "name": "negative",
@@ -884,6 +607,283 @@
       "widgets_values": [],
       "color": "#322",
       "bgcolor": "#533"
+    },
+    {
+      "id": 188,
+      "type": "GlobalSeed //Inspire",
+      "pos": {
+        "0": 520,
+        "1": -520
+      },
+      "size": {
+        "0": 320,
+        "1": 130
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "GlobalSeed //Inspire",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        0,
+        true,
+        "fixed",
+        0
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 196,
+      "type": "GridFloats",
+      "pos": {
+        "0": 130,
+        "1": 290
+      },
+      "size": {
+        "0": 320,
+        "1": 270
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "index",
+          "type": "INT",
+          "link": 389,
+          "widget": {
+            "name": "index"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "current value",
+          "type": "FLOAT",
+          "links": [
+            395
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "list",
+          "type": "FLOAT_LIST",
+          "links": null
+        },
+        {
+          "name": "list text",
+          "type": "STRING_LIST",
+          "links": [
+            387
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GridFloats",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        1,
+        3,
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1,
+        1.25
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 198,
+      "type": "GridFloats",
+      "pos": {
+        "0": 520,
+        "1": 290
+      },
+      "size": {
+        "0": 320,
+        "1": 270
+      },
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "index",
+          "type": "INT",
+          "link": 390,
+          "widget": {
+            "name": "index"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "current value",
+          "type": "FLOAT",
+          "links": [
+            396
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "list",
+          "type": "FLOAT_LIST",
+          "links": null
+        },
+        {
+          "name": "list text",
+          "type": "STRING_LIST",
+          "links": [
+            388
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GridFloats",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        1,
+        3,
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1,
+        1.25
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 201,
+      "type": "ApplyConDelta",
+      "pos": {
+        "0": 130,
+        "1": -170
+      },
+      "size": [
+        320,
+        80
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 397
+        },
+        {
+          "name": "strength",
+          "type": "FLOAT",
+          "link": 395,
+          "widget": {
+            "name": "strength"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            398
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ApplyConDelta",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        "LushJungleDelta.safetensors",
+        1.5
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 202,
+      "type": "ApplyConDelta",
+      "pos": {
+        "0": 510,
+        "1": -170
+      },
+      "size": [
+        320,
+        80
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 398
+        },
+        {
+          "name": "strength",
+          "type": "FLOAT",
+          "link": 396,
+          "widget": {
+            "name": "strength"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            399
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ApplyConDelta",
+        "ttNbgOverride": {
+          "color": "#322",
+          "bgcolor": "#533",
+          "groupcolor": "#A88"
+        }
+      },
+      "widgets_values": [
+        "MoonBaseDelta.safetensors",
+        1.5
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
     }
   ],
   "links": [
@@ -928,30 +928,6 @@
       "CLIP"
     ],
     [
-      377,
-      185,
-      0,
-      192,
-      0,
-      "CONDITIONING"
-    ],
-    [
-      379,
-      192,
-      0,
-      193,
-      0,
-      "CONDITIONING"
-    ],
-    [
-      380,
-      193,
-      0,
-      3,
-      1,
-      "CONDITIONING"
-    ],
-    [
       382,
       157,
       0,
@@ -966,22 +942,6 @@
       136,
       0,
       "CLIP"
-    ],
-    [
-      385,
-      198,
-      0,
-      193,
-      1,
-      "FLOAT"
-    ],
-    [
-      386,
-      196,
-      0,
-      192,
-      1,
-      "FLOAT"
     ],
     [
       387,
@@ -1046,6 +1006,46 @@
       195,
       0,
       "IMAGE"
+    ],
+    [
+      395,
+      196,
+      0,
+      201,
+      1,
+      "FLOAT"
+    ],
+    [
+      396,
+      198,
+      0,
+      202,
+      1,
+      "FLOAT"
+    ],
+    [
+      397,
+      185,
+      0,
+      201,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      398,
+      201,
+      0,
+      202,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      399,
+      202,
+      0,
+      3,
+      1,
+      "CONDITIONING"
     ]
   ],
   "groups": [],
@@ -1054,8 +1054,8 @@
     "ds": {
       "scale": 0.5352104480354237,
       "offset": [
-        1045.8746442050656,
-        983.3154498323628
+        1055.216763773832,
+        987.0522976598694
       ]
     },
     "groupNodes": {}
