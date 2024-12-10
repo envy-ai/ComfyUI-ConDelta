@@ -296,7 +296,7 @@ class ApplyConDelta:
     def INPUT_TYPES(s):
         return {"required": {"conditioning": ("CONDITIONING", ), 
                              "condelta": (folder_paths.get_filename_list("ConDelta"), {"tooltip": "The name of the LoRA."}),
-                            "strength": ("FLOAT", {"default": 1.0, "step": 0.01})}}
+                            "strength": ("FLOAT", {"default": 1.0, "step": 0.01, "min": -100.0, "max": 100.0, })}}
     RETURN_TYPES = ("CONDITIONING",)
     FUNCTION = "apply"
 
@@ -351,7 +351,7 @@ class ApplyConDeltaAutoScale:
         return {"required": {"conditioning": ("CONDITIONING", ), 
                              "condelta": (folder_paths.get_filename_list("ConDelta"), {"tooltip": "The name of the LoRA."}),
                              "ratio_type": (["mean", "max", "median"], {"default": "median"}),
-                            "strength": ("FLOAT", {"default": 1.0, "step": 0.01}),
+                            "strength": ("FLOAT", {"default": 1.0, "step": 0.01, "min": -100.0, "max": 100.0, }),
                             "clamp": ("BOOLEAN", {"default": False, "tooltip": "If true, will clamp the ConDelta's values."}),
                             "clamp_value": ("FLOAT", {"default": 3.0, "step": 0.01})
                             }}
@@ -481,7 +481,7 @@ class ThresholdConditioning:
 
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"conditioning": ("CONDITIONING", ), "threshold": ("FLOAT", {"default": 0.0, "step": 0.01})
+        return {"required": {"conditioning": ("CONDITIONING", ), "threshold": ("FLOAT", {"default": 1.0, "step": 0.01, "min": -100.0, "max": 100.0, })
                              }}
     RETURN_TYPES = ("CONDITIONING",)
     FUNCTION = "threshold"
@@ -615,7 +615,7 @@ class ConditioningAddConDeltaAutoScale:
     def INPUT_TYPES(s):
         return {"required": {"conditioning_base": ("CONDITIONING", ), "conditioning_delta": ("CONDITIONING", ),
                              "ratio_type": (["mean", "max", "median"], {"default": "median"}),
-                              "conditioning_delta_strength": ("FLOAT", {"default": 1.0, "step": 0.01}),
+                              "conditioning_delta_strength": ("FLOAT", {"default": 1.0, "step": 0.01, "min": -100.0, "max": 100.0, }),
                             "clamp": ("BOOLEAN", {"default": False, "tooltip": "If true, will clamp the ConDeltas's values."}),
                             "clamp_value": ("FLOAT", {"default": 3.0, "step": 0.01})
                              }}
@@ -721,7 +721,7 @@ class ExtendedConditioningAverage:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {"conditioning_to": ("CONDITIONING", ), "conditioning_from": ("CONDITIONING", ),
-                              "conditioning_to_strength": ("FLOAT", {"default": 1.0, "min": -9.0, "max": 10.0, "step": 0.01})
+                              "conditioning_to_strength": ("FLOAT", {"default": 1.0, "step": 0.01, "min": -100.0, "max": 100.0, })
                              }}
     RETURN_TYPES = ("CONDITIONING",)
     FUNCTION = "addWeighted"
