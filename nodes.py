@@ -571,7 +571,7 @@ class ConditioningAddConDelta:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {"conditioning_base": ("CONDITIONING", ), "conditioning_delta": ("CONDITIONING", ),
-                              "conditioning_delta_strength": ("FLOAT", {"default": 1.0, "step": 0.01})
+                              "conditioning_delta_strength": ("FLOAT", {"default": 1.0, "step": 0.01, "min": -100.0, "max": 100.0, })
                              }}
     RETURN_TYPES = ("CONDITIONING",)
     FUNCTION = "addDelta"
