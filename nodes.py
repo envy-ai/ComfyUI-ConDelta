@@ -4,8 +4,33 @@ import nodes
 import logging
 import folder_paths
 import os
+from comfy.comfy_types import IO, InputTypeDict
+
 
 condelta_dir = os.path.join(folder_paths.models_dir, "ConDelta")
+
+# A list of prompts for various things to use to generate a style conditioning delta
+style_prompts = {
+    "misc": [
+        "A tabby cat with a blue collar and a red bowtie, wearing glasses, sitting on a stack of books",
+        "A sexy anime succubus with a red dress and black wings, holding a pitchfork, with a mischievous smile",
+        "A scene of a futuristic city with flying cars and neon lights, with a giant robot in the background",
+        "A tranquil mountain landscape with a clear blue lake and a small cabin, with a sunset in the background",
+        "An old man sitting at a rustic table.",
+        "A surreal scene with a giant clock melting over a tree.",
+        "A cliff overlooking a stormy sea, with a lighthouse in the distance.",
+    ],
+    "anime": [
+        "A cute girl with long pink hair and a blue dress, holding a bouquet of flowers",
+        "A sexy woman with red fox ears and nine tails wearing a revealing kimono and smiling seductively, standing in front of a Japanese shrine",
+        "A teen age boy with spiky blue hair and a black jacket, riding a motorcycle",
+        "An old railway track running through the japanese countryside, with a forest and mountains in the background",
+        "A girl with blue hair in an elaborate, revealing sci-fi plugsuit, standing in a mecha hanger",
+        "A cyber-ninja in a tight black suit with neon highlighs, sneaking down a hallway in a futuristic factory",
+        "A cute young girl with her pet monster. The monster is glowing blue asnd has large cute eyes",
+        "A samurai engaged in battle at night. There are burning buildings in the background",
+    ]
+}
 
 try:
     if condelta_dir not in folder_paths.get_folder_paths("ConDelta"):
@@ -44,6 +69,15 @@ def tensor_mask(tensor1, tensor2):
     Clips all the values in tensor1 to the magnitude of the same values in tensor2.
     """
     return torch.sign(tensor1) * torch.minimum(torch.abs(tensor1), torch.abs(tensor2))
+
+def tenser_get_gaussian_noise(tensor, strength, seed=None):
+    """
+    Returns a tensor of gaussian noise, multiplied by the strength.
+    """
+    if seed is not None:
+        torch.manual_seed(seed)
+        
+    return torch.randn_like(tensor) * strength
 
 def tenser_add_gaussian_noise(tensor, strength):
     """
@@ -128,6 +162,215 @@ def tensor_add_type4_noise(tensor, strength, seed=None):
     """
     return tensor + tensor_get_type4_noise(tensor, strength, seed)
 
+def conditioning_add(conditioning_a, conditioning_b):
+    """
+    Adds two conditionings together (A + B), producing a conditioning delta.
+    """
+
+    out = []
+
+    cond_b = conditioning_b[0][0]
+    pooled_output_b = conditioning_b[0][1].get("pooled_output", None)
+    conditioning_llama3_b = conditioning_b[0][1].get("conditioning_llama3", None)
+
+    for i in range(len(conditioning_a)):
+        t1 = conditioning_a[i][0]
+        pooled_output_a = conditioning_a[i][1].get("pooled_output", pooled_output_b)
+        conditioning_llama3_a = conditioning_a[i][1].get("conditioning_llama3", None)
+        t0 = cond_b[:,:t1.shape[1]]
+        if t0.shape[1] < t1.shape[1]:
+            t0 = torch.cat([t0] + [torch.zeros((1, (t1.shape[1] - t0.shape[1]), t1.shape[2]))], dim=1)
+
+        tw = t1 + torch.mul(t0, 1)
+        t_to = conditioning_a[i][1].copy()
+        if pooled_output_b is not None and pooled_output_a is not None:
+            t_to["pooled_output"] = pooled_output_a + torch.mul(pooled_output_b, 1)
+        elif pooled_output_b is not None:
+            t_to["pooled_output"] = pooled_output_b
+            
+        if conditioning_llama3_b is not None and conditioning_llama3_a is not None:                
+            t_to["conditioning_llama3"] = conditioning_llama3_a + torch.mul(conditioning_llama3_b, 1)
+        elif conditioning_llama3_b is not None:
+            t_to["conditioning_llama3"] = conditioning_llama3_b
+
+        n = [tw, t_to]
+        out.append(n)
+    return out
+
+def conditioning_scale(conditioning, scalar):
+    """
+    Multiplies the conditioning by a scalar.
+    """
+
+    out = []
+
+    for i in range(len(conditioning)):
+        t1 = conditioning[i][0]
+        pooled_output = conditioning[i][1].get("pooled_output", None)
+        conditioning_llama3 = conditioning[i][1].get("conditioning_llama3", None)
+        tw = torch.mul(t1, scalar)
+        t_to = conditioning[i][1].copy()
+        if pooled_output is not None:
+            t_to["pooled_output"] = torch.mul(pooled_output, scalar)
+        if conditioning_llama3 is not None:
+            mean_before_multiply = tensor_mean(conditioning_llama3)
+            t_to["conditioning_llama3"] = torch.mul(conditioning_llama3, scalar)
+            mean_after_multiply = tensor_mean(t_to["conditioning_llama3"])
+            print(f"Mean before multiply: {mean_before_multiply}, Mean after multiply: {mean_after_multiply}, Scalar: {scalar}")
+
+        n = [tw, t_to]
+        out.append(n)
+    return out
+
+def conditioning_subtract(conditioning_a, conditioning_b):
+    """
+    Subtracts one conditioning from another (A-B), producing a conditioning delta by
+    multiplying B by -1 and adding it to A with conditionining_scale and conditioning_add.
+    """
+    
+    conditioning_b = conditioning_scale(conditioning_b, -1)
+    return conditioning_add(conditioning_a, conditioning_b)
+    
+def get_conditioning_from_prompt(prompt, clip):
+    """
+    This function gets the conditioning from a prompt and a clip model.
+    """
+    
+    # Get the conditioning from the prompt
+    tokens = clip.tokenize(prompt)
+    return clip.encode_from_tokens_scheduled(tokens)
+
+
+class QuickConDelta:
+    """
+    This shortcut node takes a conditioning, clip, and prompt as input.  It encodes the prompt
+    using the clip model, then encodes a "" prompt using the clip model.  It subtracts the "" conditioning
+    from the prompt conditioning, producing a conditioning delta. Then it adds the conditioning delta
+    to the user supplied conditioning, producing a new conditioning.
+    """
+    @classmethod
+    def INPUT_TYPES(s) -> InputTypeDict:
+        return {
+            "required": {
+                "conditioning": ("CONDITIONING", ),
+                "clip": (IO.CLIP, {"tooltip": "The CLIP model used for encoding the text."}),
+                "prompt": (IO.STRING, {"multiline": True, "dynamicPrompts": True, "tooltip": "The text to be encoded."}),
+                "strength": ("FLOAT", {"default": 0.6, "step": 0.01, "min": -100.0, "max": 100.0}),
+            }
+        }
+    RETURN_TYPES = ("CONDITIONING",)
+    FUNCTION = "getConditioning"
+
+    CATEGORY = "conditioning"
+
+    def getConditioning(self, conditioning, clip, prompt, strength):
+        # Get the conditioning from the prompt
+        conditioning_from_prompt = get_conditioning_from_prompt(prompt, clip)
+        blank_conditioning = get_conditioning_from_prompt("", clip)
+        # Subtract the blank conditioning from the conditioning from the prompt
+        conditioning_delta = conditioning_subtract(conditioning_from_prompt, blank_conditioning)
+        
+        # Scale the conditioning delta by the negative prompt strength
+        conditioning_delta = conditioning_scale(conditioning_delta, strength)
+        
+        # Subtract the conditioning from the conditioning from the prompt
+        new_conditioning = conditioning_add(conditioning, conditioning_delta)
+        # Return the conditioning delta
+        return (new_conditioning, )
+
+class CFGlessNegativePrompt:
+    """
+    This shortcut node takes a conditioning, clip, and prompt as input.  It encodes the prompt
+    using the clip model, then encodes a "" prompt using the clip model.  It subtracts the "" conditioning
+    from the prompt conditioning, producing a conditioning delta. Then it substracts the conditioning delta
+    from the user supplied conditioning, producing a new conditioning.
+    """
+    @classmethod
+    def INPUT_TYPES(s) -> InputTypeDict:
+        return {
+            "required": {
+                "conditioning": ("CONDITIONING", ),
+                "clip": (IO.CLIP, {"tooltip": "The CLIP model used for encoding the text."}),
+                "negative_prompt": (IO.STRING, {"multiline": True, "dynamicPrompts": True, "tooltip": "The text to be encoded."}),
+                "negative_prompt_strength": ("FLOAT", {"default": 0.6, "step": 0.01, "min": -100.0, "max": 100.0}),
+            }
+        }
+    RETURN_TYPES = ("CONDITIONING",)
+    FUNCTION = "getConditioning"
+
+    CATEGORY = "conditioning"
+
+    def getConditioning(self, conditioning, clip, negative_prompt, negative_prompt_strength):
+        # Get the conditioning from the prompt
+        conditioning_from_prompt = get_conditioning_from_prompt(negative_prompt, clip)
+        blank_conditioning = get_conditioning_from_prompt("", clip)
+        # Subtract the blank conditioning from the conditioning from the prompt
+        conditioning_delta = conditioning_subtract(conditioning_from_prompt, blank_conditioning)
+        
+        # Scale the conditioning delta by the negative prompt strength
+        conditioning_delta = conditioning_scale(conditioning_delta, negative_prompt_strength)
+        
+        # Subtract the conditioning from the conditioning from the prompt
+        conditioning_with_negative = conditioning_subtract(conditioning, conditioning_delta)
+        # Return the conditioning delta
+        return (conditioning_with_negative, )
+
+class GetConDeltaFromPrompt:
+    """
+    This node gets a conditioning delta from a prompt and a clip model.
+    """
+
+    @classmethod
+    def INPUT_TYPES(s) -> InputTypeDict:
+        return {
+            "required": {
+                "prompt": (IO.STRING, {"multiline": True, "dynamicPrompts": True, "tooltip": "The text to be encoded."}),
+                "clip": (IO.CLIP, {"tooltip": "The CLIP model used for encoding the text."}),
+                "prompt_type": ([*style_prompts.keys(), 'custom', 'none'], {"default": "misc"}),
+                "custom_prompts": (IO.STRING, {"multiline": True, "tooltip": "Custom prompts to use for conditioning delta, one per line."}),
+            }
+        }
+    RETURN_TYPES = ("CONDITIONING",)
+    FUNCTION = "getConDelta"
+
+    CATEGORY = "conditioning"
+
+    def getConDelta(self, prompt, clip, prompt_type, custom_prompts):
+        # Get the style prompts
+        _style_prompts = []
+        
+        if prompt_type == "custom":
+            _style_prompts = custom_prompts.split("\n")
+        elif prompt_type == "none":
+            _style_prompts = [""]
+        else:
+            _style_prompts = style_prompts[prompt_type]
+
+        
+        conditioning_delta = None
+        # Iterate through the style prompts
+        for style_prompt in _style_prompts:
+            # Append the style prompt to the prompt
+            prompt_with_style = f"{prompt}. {style_prompt}"
+            # Get the conditioning from the prompt with the style prompt appended
+            conditioning_with_style = get_conditioning_from_prompt(prompt_with_style, clip)
+            # Get the conditioning from the prompt without the style appended
+            conditioning_without_style = get_conditioning_from_prompt(prompt, clip)
+            # Subtract the conditioning without the style from the conditioning with the style
+            conditioning = conditioning_subtract(conditioning_with_style, conditioning_without_style)
+            
+            # If the conditioning delta is None, set it to the conditioning
+            if conditioning_delta is None:
+                conditioning_delta = conditioning
+            else:
+                # Add the conditioning to the conditioning delta
+                conditioning_delta = conditioning_add(conditioning_delta, conditioning)
+        
+        # Scale the conditioning delta by the number of style prompts
+        conditioning_delta = conditioning_scale(conditioning_delta, 1.0 / len(style_prompts))
+        # Return the conditioning delta
+        return (conditioning_delta, )
+
 class ConditioningGetNoise:
     """
     This generates type1 or type2 noise based on the input conditioning and strength
@@ -168,6 +411,39 @@ class ConditioningGetNoise:
             if pooled_output is not None:
                 t_to["pooled_output"] = pooled_output
 
+            n = [tw, t_to]
+            out.append(n)
+        return (out, )
+    
+class ConditioningGetRandom:
+    """
+    This generates random gaussian noise based on the input conditioning and strength
+    """
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {"conditioning": ("CONDITIONING", ), 
+                             "strength": ("FLOAT", {"default": 1.0, "step": 0.01}),
+                             "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                             }}
+    RETURN_TYPES = ("CONDITIONING",)
+    FUNCTION = "getRandom"
+
+    CATEGORY = "conditioning"
+
+    def getRandom(self, conditioning, strength, seed):
+        out = []
+
+        for i in range(len(conditioning)):
+            t1 = conditioning[i][0]
+            pooled_output = conditioning[i][1].get("pooled_output", None)
+            tw = tenser_get_gaussian_noise(t1, strength, seed)
+            if pooled_output is not None:
+                pooled_output = tenser_get_gaussian_noise(pooled_output, strength, seed)
+
+            t_to = conditioning[i][1].copy()
+            if pooled_output is not None:
+                t_to["pooled_output"] = pooled_output
             n = [tw, t_to]
             out.append(n)
         return (out, )
@@ -427,10 +703,13 @@ class ConditioningScale:
         for i in range(len(conditioning)):
             t1 = conditioning[i][0]
             pooled_output = conditioning[i][1].get("pooled_output", None)
+            conditioning_llama3 = conditioning[i][1].get("conditioning_llama3", None)
             tw = torch.mul(t1, scalar)
             t_to = conditioning[i][1].copy()
             if pooled_output is not None:
                 t_to["pooled_output"] = torch.mul(pooled_output, scalar)
+            if conditioning_llama3 is not None:
+                t_to["conditioning_llama3"] = torch.mul(conditioning_llama3, scalar)
 
             n = [tw, t_to]
             out.append(n)
@@ -452,13 +731,20 @@ class ConditioningSubtract:
 
     def subtract(self, conditioning_a, conditioning_b):
         out = []
+        
+        # Print all keys in conditioning_a and conditioning_b
+        print("conditioning_a keys: ", conditioning_a[0][1].keys())
+        print("conditioning_b keys: ", conditioning_b[0][1].keys())
+        
 
         cond_b = conditioning_b[0][0]
         pooled_output_b = conditioning_b[0][1].get("pooled_output", None)
+        conditioning_llama3_b = conditioning_b[0][1].get("conditioning_llama3", None)
 
         for i in range(len(conditioning_a)):
             t1 = conditioning_a[i][0]
             pooled_output_a = conditioning_a[i][1].get("pooled_output", pooled_output_b)
+            conditioning_llama3_a = conditioning_a[i][1].get("conditioning_llama3", None)
             t0 = cond_b[:,:t1.shape[1]]
             if t0.shape[1] < t1.shape[1]:
                 t0 = torch.cat([t0] + [torch.zeros((1, (t1.shape[1] - t0.shape[1]), t1.shape[2]))], dim=1)
@@ -469,6 +755,11 @@ class ConditioningSubtract:
                 t_to["pooled_output"] = pooled_output_a + torch.mul(pooled_output_b, -1)
             elif pooled_output_b is not None:
                 t_to["pooled_output"] = pooled_output_b
+                
+            if conditioning_llama3_b is not None and conditioning_llama3_a is not None:                
+                t_to["conditioning_llama3"] = conditioning_llama3_a + torch.mul(conditioning_llama3_b, -1)
+            elif conditioning_llama3_b is not None:
+                t_to["conditioning_llama3"] = conditioning_llama3_b
 
             n = [tw, t_to]
             out.append(n)
@@ -586,10 +877,12 @@ class ConditioningAddConDelta:
 
         cond_delta = conditioning_delta[0][0]
         pooled_output_from = conditioning_delta[0][1].get("pooled_output", None)
+        conditioning_llama3_from = conditioning_delta[0][1].get("conditioning_llama3", None)
 
         for i in range(len(conditioning_base)):
             t1 = conditioning_base[i][0]
             pooled_output_to = conditioning_base[i][1].get("pooled_output", pooled_output_from)
+            conditioning_llama3_to = conditioning_base[i][1].get("conditioning_llama3", conditioning_llama3_from)
             t0 = cond_delta[:,:t1.shape[1]]
             if t0.shape[1] < t1.shape[1]:
                 t0 = torch.cat([t0] + [torch.zeros((1, (t1.shape[1] - t0.shape[1]), t1.shape[2]))], dim=1)
@@ -600,6 +893,11 @@ class ConditioningAddConDelta:
                 t_to["pooled_output"] = pooled_output_to + torch.mul(pooled_output_from, conditioning_delta_strength)
             elif pooled_output_from is not None:
                 t_to["pooled_output"] = pooled_output_from
+                
+            if conditioning_llama3_from is not None and conditioning_llama3_to is not None:
+                t_to["conditioning_llama3"] = conditioning_llama3_to + torch.mul(conditioning_llama3_from, conditioning_delta_strength)
+            elif conditioning_llama3_from is not None:
+                t_to["conditioning_llama3"] = conditioning_llama3_from
 
             n = [tw, t_to]
             out.append(n)
@@ -667,6 +965,7 @@ class ConditioningAverageMultiple:
     def INPUT_TYPES(s):
         return {"required": {
             "conditioning0": ("CONDITIONING", ),
+            }, "optional": {
             "conditioning1": ("CONDITIONING", ),
             "conditioning2": ("CONDITIONING", ),
             "conditioning3": ("CONDITIONING", ),
@@ -682,36 +981,72 @@ class ConditioningAverageMultiple:
 
     CATEGORY = "conditioning"
 
-    def average(self, conditionings):
-        out = []
+    def average(self, conditioning0, conditioning1 = None, conditioning2 = None, conditioning3 = None, conditioning4 = None, conditioning5 = None, conditioning6 = None, conditioning7 = None, conditioning8 = None, conditioning9 = None):
+        conditionings = [conditioning0, conditioning1, conditioning2, conditioning3, conditioning4, conditioning5, conditioning6, conditioning7, conditioning8, conditioning9]
 
         # Add them all up, counting the number that aren't null
         count = 0
         sum = None
-        pooled_output = None
         for i in range(10):
-            if len(conditionings[i]) > 0:
+            if conditionings[i] is not None:
                 count += 1
                 if sum is None:
-                    sum = conditionings[i][0][0]
-                    pooled_output = conditionings[i][0][1].get("pooled_output", None)
+                    sum = conditionings[i]
                 else:
-                    sum += conditionings[i][0][0]
-                    if pooled_output is not None:
-                        pooled_output += conditionings[i][0][1].get("pooled_output", None)
+                    # Call ConditioningAddConDelta with a strength of 1.0
+                    sum = self.addDelta(sum, conditionings[i], 1.0)
+
 
         # Divide by the count
         if count > 0:
-            sum /= count
-            if pooled_output is not None:
-                pooled_output /= count
+            sum = self.multiply(sum, 1.0 / count)
 
         # Return the result
-        for i in range(len(conditionings[0])):
-            n = [sum, {"pooled_output": pooled_output}]
-            out.append(n)
+        return (sum, )
+    
+    
+    def addDelta(self, conditioning_base, conditioning_delta, conditioning_delta_strength):
+        out = []
 
-        return (out, )
+        if len(conditioning_delta) > 1:
+            logging.warning("Warning: ExtendedConditioningAverage conditioning_delta contains more than 1 cond, only the first one will actually be applied to conditioning_base.")
+
+        cond_delta = conditioning_delta[0][0]
+        pooled_output_from = conditioning_delta[0][1].get("pooled_output", None)
+
+        for i in range(len(conditioning_base)):
+            t1 = conditioning_base[i][0]
+            pooled_output_to = conditioning_base[i][1].get("pooled_output", pooled_output_from)
+            t0 = cond_delta[:,:t1.shape[1]]
+            if t0.shape[1] < t1.shape[1]:
+                t0 = torch.cat([t0] + [torch.zeros((1, (t1.shape[1] - t0.shape[1]), t1.shape[2]))], dim=1)
+
+            tw = t1 + torch.mul(t0, conditioning_delta_strength)
+            t_to = conditioning_base[i][1].copy()
+            if pooled_output_from is not None and pooled_output_to is not None:
+                t_to["pooled_output"] = pooled_output_to + torch.mul(pooled_output_from, conditioning_delta_strength)
+            elif pooled_output_from is not None:
+                t_to["pooled_output"] = pooled_output_from
+
+            n = [tw, t_to]
+            out.append(n)
+        return (out, )   
+    
+    
+    def multiply(self, conditioning, scalar):
+        out = []
+
+        for i in range(len(conditioning)):
+            t1 = conditioning[i][0]
+            pooled_output = conditioning[i][1].get("pooled_output", None)
+            tw = torch.mul(t1, scalar)
+            t_to = conditioning[i][1].copy()
+            if pooled_output is not None:
+                t_to["pooled_output"] = torch.mul(pooled_output, scalar)
+
+            n = [tw, t_to]
+            out.append(n)
+        return (out, ) 
 
 class ExtendedConditioningAverage:
     """
@@ -759,6 +1094,7 @@ class ExtendedConditioningAverage:
 # A dictionary that contains all nodes you want to export with their names
 # NOTE: names should be globally unique
 NODE_CLASS_MAPPINGS = {
+    "GetConDeltaFromPrompt": GetConDeltaFromPrompt,
     "ExtendedConditioningAverage": ExtendedConditioningAverage,
     "ConditioningSubtract": ConditioningSubtract,
     "ConditioningAddConDelta": ConditioningAddConDelta,
@@ -774,6 +1110,9 @@ NODE_CLASS_MAPPINGS = {
     "MaskConDelta": MaskConDelta,
     "ConditioningAverageMultiple": ConditioningAverageMultiple,
     "ConditioningGetNoise": ConditioningGetNoise,
+    "ConditioningGetRandom": ConditioningGetRandom,
+    "CFGlessNegativePrompt": CFGlessNegativePrompt,
+    "QuickConDelta": QuickConDelta,
 }
 
 # A dictionary that contains the friendly/humanly readable titles for the nodes
@@ -793,6 +1132,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "MaskConDelta": "Mask ConDelta (Clamp ConDelta with another ConDelta or Conditioning)",
     "ConditioningAverageMultiple": "Average Multiple Conditionings or ConDeltas",
     "ConditioningGetNoise": "Get Noise from a Conditioning or ConDelta",
+    "ConditioningGetRandom": "Get random Gaussian noise from a Conditioning or ConDelta",
+    "GetConDeltaFromPrompt": "Get ConDelta from Prompt",
+    "CFGlessNegativePrompt": "CFG-less Negative Prompt",
+    "QuickConDelta": "Quick ConDelta",
 }
 
 print("\033[94mConDelta Nodes: \033[92mLoaded\033[0m")
