@@ -4,6 +4,7 @@ import nodes
 import logging
 import folder_paths
 import os
+import re
 from comfy.comfy_types import IO, InputTypeDict
 
 
@@ -174,12 +175,25 @@ def conditioning_add(conditioning_a, conditioning_b):
     conditioning_llama3_b = conditioning_b[0][1].get("conditioning_llama3", None)
 
     for i in range(len(conditioning_a)):
+        # Print the keys of conditioning_a[i][1]
+        if conditioning_a[i][1] is None:
+            logging.warning(f"conditioning_a[{i}][1] is None, skipping.")
+        if conditioning_a[i][1] is not None:
+            logging.debug(f"conditioning_a[{i}][1] keys: {list(conditioning_a[i][1].keys())}")
+        
         t1 = conditioning_a[i][0]
         pooled_output_a = conditioning_a[i][1].get("pooled_output", pooled_output_b)
         conditioning_llama3_a = conditioning_a[i][1].get("conditioning_llama3", None)
         t0 = cond_b[:,:t1.shape[1]]
         if t0.shape[1] < t1.shape[1]:
             t0 = torch.cat([t0] + [torch.zeros((1, (t1.shape[1] - t0.shape[1]), t1.shape[2]))], dim=1)
+            
+        # Pad conditioning_llama3_a or _b if [1, 32, a, 4096] is not [1, 32, b, 4096]
+        if conditioning_llama3_b is not None and conditioning_llama3_a is not None:
+            if conditioning_llama3_b.shape[2] < conditioning_llama3_a.shape[2]:
+                conditioning_llama3_b = torch.cat([conditioning_llama3_b] + [torch.zeros((1, 32, (conditioning_llama3_a.shape[2] - conditioning_llama3_b.shape[2]), 4096))], dim=2)
+            elif conditioning_llama3_b.shape[2] > conditioning_llama3_a.shape[2]:
+                conditioning_llama3_a = torch.cat([conditioning_llama3_a] + [torch.zeros((1, 32, (conditioning_llama3_b.shape[2] - conditioning_llama3_a.shape[2]), 4096))], dim=2)
 
         tw = t1 + torch.mul(t0, 1)
         t_to = conditioning_a[i][1].copy()
@@ -209,14 +223,23 @@ def conditioning_scale(conditioning, scalar):
         pooled_output = conditioning[i][1].get("pooled_output", None)
         conditioning_llama3 = conditioning[i][1].get("conditioning_llama3", None)
         tw = torch.mul(t1, scalar)
+        #print(f"Mean before multiply: {tensor_mean(t1)}, Mean after multiply: {tensor_mean(tw)}, Scalar: {scalar}")
         t_to = conditioning[i][1].copy()
+        
+        #print("scale: conditioning[i][1] keys: ", t_to.keys())
+        
         if pooled_output is not None:
             t_to["pooled_output"] = torch.mul(pooled_output, scalar)
+            print(f"Pooled Mean before multiply: {tensor_mean(pooled_output)}, Mean after multiply: {tensor_mean(t_to['pooled_output'])}, Scalar: {scalar}")
+        #else:
+            #print("scale: No pooled_output found in conditioning, skipping.")
         if conditioning_llama3 is not None:
             mean_before_multiply = tensor_mean(conditioning_llama3)
             t_to["conditioning_llama3"] = torch.mul(conditioning_llama3, scalar)
             mean_after_multiply = tensor_mean(t_to["conditioning_llama3"])
-            print(f"Mean before multiply: {mean_before_multiply}, Mean after multiply: {mean_after_multiply}, Scalar: {scalar}")
+            print(f"Llama3 Mean before multiply: {mean_before_multiply}, Mean after multiply: {mean_after_multiply}, Scalar: {scalar}")
+        #else:
+            #print("scale: No conditioning_llama3 found in conditioning, skipping.")
 
         n = [tw, t_to]
         out.append(n)
@@ -231,13 +254,13 @@ def conditioning_subtract(conditioning_a, conditioning_b):
     conditioning_b = conditioning_scale(conditioning_b, -1)
     return conditioning_add(conditioning_a, conditioning_b)
     
-def get_conditioning_from_prompt(prompt, clip):
+def get_conditioning_from_prompt(prompt, clip, **kwargs):
     """
     This function gets the conditioning from a prompt and a clip model.
     """
     
     # Get the conditioning from the prompt
-    tokens = clip.tokenize(prompt)
+    tokens = clip.tokenize(prompt, **kwargs)
     return clip.encode_from_tokens_scheduled(tokens)
 
 
@@ -264,8 +287,9 @@ class QuickConDelta:
     CATEGORY = "conditioning"
 
     def getConditioning(self, conditioning, clip, prompt, strength):
-        # Get the conditioning from the prompt
+        # Get the conditioning from the prompt        
         conditioning_from_prompt = get_conditioning_from_prompt(prompt, clip)
+        
         blank_conditioning = get_conditioning_from_prompt("", clip)
         # Subtract the blank conditioning from the conditioning from the prompt
         conditioning_delta = conditioning_subtract(conditioning_from_prompt, blank_conditioning)
@@ -730,18 +754,20 @@ class ConditioningSubtract:
     CATEGORY = "conditioning"
 
     def subtract(self, conditioning_a, conditioning_b):
+        '''
         out = []
         
-        # Print all keys in conditioning_a and conditioning_b
-        print("conditioning_a keys: ", conditioning_a[0][1].keys())
-        print("conditioning_b keys: ", conditioning_b[0][1].keys())
-        
-
         cond_b = conditioning_b[0][0]
         pooled_output_b = conditioning_b[0][1].get("pooled_output", None)
         conditioning_llama3_b = conditioning_b[0][1].get("conditioning_llama3", None)
 
         for i in range(len(conditioning_a)):
+            # Print all keys in conditioning_a and conditioning_b
+            if conditioning_a[i][1] is not None:
+                print(f"conditioning_a[{i}] keys: ", conditioning_a[i][1].keys())
+            if conditioning_b[i][1] is not None:
+                print(f"conditioning_b[{i}] keys: ", conditioning_b[i][1].keys())
+
             t1 = conditioning_a[i][0]
             pooled_output_a = conditioning_a[i][1].get("pooled_output", pooled_output_b)
             conditioning_llama3_a = conditioning_a[i][1].get("conditioning_llama3", None)
@@ -763,6 +789,14 @@ class ConditioningSubtract:
 
             n = [tw, t_to]
             out.append(n)
+        return (out, )
+        '''
+        out = conditioning_subtract(conditioning_a, conditioning_b)
+        # Print the keys of the first conditioning in the output
+        if out[0][1] is not None:
+            print(f"Output conditioning keys: {list(out[0][1].keys())}")
+        else:
+            print("Output conditioning has no keys.")
         return (out, )
 
 class ThresholdConditioning:
@@ -854,6 +888,174 @@ class HardClampConDelta:
             out.append(n)
         return (out, )
 
+class PromptTravel:
+    """
+    Travels between two prompts by a specified amount (can exceed 0-1 range).
+
+    Inputs: 
+      prompt A (string), 
+      prompt B (string), 
+      travel_amount (float), 
+      clip (for encoding prompts)
+    Returns: new conditioning
+    """
+    
+    @classmethod
+    def INPUT_TYPES(s) -> InputTypeDict:
+        return {
+            "required": {
+                "prompt_a": (IO.STRING, {"multiline": True, "dynamicPrompts": True, "tooltip": "The text to be encoded."}),
+                "prompt_b": (IO.STRING, {"multiline": True, "dynamicPrompts": True, "tooltip": "The text to be encoded."}),
+                "travel_amount": ("FLOAT", {"default": 0.5, "step": 0.01, "min": -100.0, "max": 100.0}),
+                "clip": (IO.CLIP, {"tooltip": "The CLIP model used for encoding the text."}),
+            }
+        }
+    RETURN_TYPES = ("CONDITIONING",)
+    FUNCTION = "travel"
+
+    CATEGORY = "conditioning"
+
+    def travel(self, prompt_a, prompt_b, travel_amount, clip):
+        # Get the conditioning from the prompts        
+        conditioning_a = get_conditioning_from_prompt(prompt_a, clip)
+        conditioning_b = get_conditioning_from_prompt(prompt_b, clip)
+        
+        # Subtract the conditioning from prompt A from the conditioning from prompt B
+        conditioning_delta = conditioning_subtract(conditioning_b, conditioning_a)
+        
+        # Scale the conditioning delta by the travel amount
+        conditioning_delta = conditioning_scale(conditioning_delta, travel_amount)
+        
+        # Add the conditioning delta to the conditioning from prompt A
+        new_conditioning = conditioning_add(conditioning_a, conditioning_delta)
+        # Return the new conditioning
+        return (new_conditioning, )
+    
+class MultiDimensionalPromptTravel:
+    """
+    Inputs:
+       Prompt (string, see special formatting below)
+       Clip (for encoding prompts)
+       
+    Returns: new conditioning
+    
+    Prompt format:
+       The prompt is written as normal, except that it contains sections enclosed in angle brackets <>.  Each angle bracket section is formatted as follows: <base_subprompt:destination1:weight1:destination2:weight2:...>.
+
+       For instance:
+            A beautiful <cat:dog:0.5:wolf:-0.3> sitting on a <red:blue:0.25:green:0.1> mat.
+            
+    First, it determines the base prompt by replacing each angle bracket section with the base subprompt.  In the above example, the base prompt would be "A beautiful cat sitting on a red mat."  It encodes this prompt to get the base conditioning.
+    
+    Then, for each angle bracket section, it processes each destination:weight pair. For each pair, it:
+    1. Creates a prompt with the destination subprompt replacing the base subprompt
+    2. Encodes this destination prompt to get its conditioning
+    3. Subtracts the base conditioning from the destination conditioning to get a conditioning delta
+    4. Scales the conditioning delta by the specified weight
+    5. Adds the scaled conditioning delta to the base conditioning
+    
+    For the above example, it would generate the following delta prompts:
+        1. A beautiful dog sitting on a red mat. (weight: 0.5)
+        2. A beautiful wolf sitting on a red mat. (weight: -0.3)
+        3. A beautiful cat sitting on a blue mat. (weight: 0.25)  
+        4. A beautiful cat sitting on a green mat. (weight: 0.1)
+
+    The result is a conditioning that has traveled towards each of the destination subprompts by their specified weights.
+    """
+    
+    @classmethod
+    def INPUT_TYPES(s) -> InputTypeDict:
+        return {
+            "required": {
+                "prompt": (IO.STRING, {"multiline": True, "dynamicPrompts": True, "tooltip": "The text to be encoded.  Use special formatting for multi-dimensional travel."}),
+                "clip": (IO.CLIP, {"tooltip": "The CLIP model used for encoding the text."}),
+            }
+        }
+    RETURN_TYPES = ("CONDITIONING",)
+    FUNCTION = "travel"
+
+    CATEGORY = "conditioning"
+
+    def travel(self, prompt, clip):
+        # Find all bracket patterns and their positions
+        bracket_pattern = r"<([^>]+)>"
+        
+        # Create base prompt by replacing each bracket with its first element
+        base_prompt = re.sub(bracket_pattern, lambda m: m.group(1).split(":")[0], prompt)
+        
+        print("Original prompt: ", prompt)
+        print("Base prompt: ", base_prompt)
+
+        # Get the conditioning from the base prompt        
+        base_conditioning = get_conditioning_from_prompt(base_prompt, clip)
+        original_base_conditioning = base_conditioning
+        
+        matches = list(re.finditer(bracket_pattern, prompt))
+        
+        for match in matches:
+            full_bracket = match.group(0)
+            bracket_content = match.group(1)
+            
+            print(f"Processing bracket: {full_bracket}")
+            
+            parts = bracket_content.split(":")
+            if len(parts) < 3:
+                print(f"Invalid delta prompt format (need at least base:destination:weight): {bracket_content}")
+                continue
+            if len(parts) % 2 == 0:
+                print(f"Invalid delta prompt format (need base:destination:weight pairs): {bracket_content}")
+                continue
+            
+            base_subprompt = parts[0]
+            
+            for i in range(1, len(parts), 2):
+                if i + 1 >= len(parts):
+                    print(f"Missing weight for destination '{parts[i]}' in: {bracket_content}")
+                    break
+                
+                destination_subprompt = parts[i]
+                try:
+                    travel_distance = float(parts[i + 1])
+                except ValueError:
+                    print(f"Invalid travel distance '{parts[i + 1]}' for destination '{destination_subprompt}': {bracket_content}")
+                    continue
+                
+                # Let's build the destination prompt from the original prompt by replacing just the current bracket
+                # and all other brackets with their base values.
+                
+                # To do this, we can iterate through all matches and build the string segment by segment.
+                
+                current_prompt_for_dest = ""
+                last_index = 0
+                for m in matches:
+                    # Add the text between the last match and this one
+                    current_prompt_for_dest += prompt[last_index:m.start()]
+                    
+                    if m.group(0) == full_bracket:
+                        # This is the bracket we're processing, so use the destination subprompt
+                        current_prompt_for_dest += destination_subprompt
+                    else:
+                        # This is a different bracket, so use its base subprompt
+                        current_prompt_for_dest += m.group(1).split(":")[0]
+                    
+                    last_index = m.end()
+                
+                # Add the remaining part of the prompt after the last match
+                current_prompt_for_dest += prompt[last_index:]
+
+                print(f"  Processing: {base_subprompt} -> {destination_subprompt} (weight: {travel_distance})")
+                print(f"  Full destination prompt: {current_prompt_for_dest}")
+                
+                conditioning_destination = get_conditioning_from_prompt(current_prompt_for_dest, clip)
+                
+                conditioning_delta = conditioning_subtract(conditioning_destination, original_base_conditioning)
+                
+                conditioning_delta = conditioning_scale(conditioning_delta, travel_distance)
+                
+                base_conditioning = conditioning_add(base_conditioning, conditioning_delta)
+            
+        return (base_conditioning, )
+            
 class ConditioningAddConDelta:
     """
     This node adds a conditioning delta with a specific strength to a conditioning.
@@ -870,6 +1072,7 @@ class ConditioningAddConDelta:
     CATEGORY = "conditioning"
 
     def addDelta(self, conditioning_base, conditioning_delta, conditioning_delta_strength):
+        '''
         out = []
 
         if len(conditioning_delta) > 1:
@@ -901,7 +1104,16 @@ class ConditioningAddConDelta:
 
             n = [tw, t_to]
             out.append(n)
-        return (out, )    
+        return (out, )'''
+        conditioning_delta = conditioning_scale(conditioning_delta, conditioning_delta_strength)
+        out = conditioning_add(conditioning_base, conditioning_delta)
+
+        # Print the keys of the first conditioning in the output
+        if out[0][1] is not None:
+            print(f"Output conditioning keys: {list(out[0][1].keys())}")
+        else:
+            print("Output conditioning has no keys.")
+        return (out, )
     
 class ConditioningAddConDeltaAutoScale:
     """
@@ -1113,6 +1325,8 @@ NODE_CLASS_MAPPINGS = {
     "ConditioningGetRandom": ConditioningGetRandom,
     "CFGlessNegativePrompt": CFGlessNegativePrompt,
     "QuickConDelta": QuickConDelta,
+    "PromptTravel": PromptTravel,
+    "MultiDimensionalPromptTravel": MultiDimensionalPromptTravel,
 }
 
 # A dictionary that contains the friendly/humanly readable titles for the nodes
@@ -1136,6 +1350,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "GetConDeltaFromPrompt": "Get ConDelta from Prompt",
     "CFGlessNegativePrompt": "CFG-less Negative Prompt",
     "QuickConDelta": "Quick ConDelta",
+    "PromptTravel": "Prompt Travel",
+    "MultiDimensionalPromptTravel": "Multi-Dimensional Prompt Travel",
 }
 
 print("\033[94mConDelta Nodes: \033[92mLoaded\033[0m")
